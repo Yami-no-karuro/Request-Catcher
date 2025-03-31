@@ -25,7 +25,7 @@ fn handle_client_request(mut stream: TcpStream) -> Result<(), io::Error> {
     let request_method: &str = request_line_parts[0];
     let request_path: &str = request_line_parts[1];
 
-    let mut request_body = String::new();
+    let mut request_body: String = String::new();
     let mut request_headers: Vec<&str> = Vec::new();
     let mut is_body: bool = false;
 
