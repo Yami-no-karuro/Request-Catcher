@@ -14,8 +14,8 @@ mod line_parser;
  * - curl -X GET http://localhost:8080
  */
 
-fn handle_client_request(mut stream: TcpStream) -> Result<(), io::Error> {
-    let mut request_buffer: [u8; 1024] = [0; 1024];
+fn handle_request(mut stream: TcpStream) -> Result<(), io::Error> {
+    let mut request_buffer: [u8; 2048] = [0; 2048];
     stream.read(&mut request_buffer)?;
 
     let request: String = String::from_utf8_lossy(&request_buffer[..]).to_string();
@@ -60,13 +60,14 @@ fn handle_client_request(mut stream: TcpStream) -> Result<(), io::Error> {
 
 fn main() {
     let listener: TcpListener = TcpListener::bind("127.0.0.1:5000").unwrap();
-    println!("Server running on port: 5000");
+    println!("Catcher listening on port: 5000.");
 
     for stream in listener.incoming() {
         let stream = stream.unwrap();
         thread::spawn(move || {
-            if let Err(e) = handle_client_request(stream) {
-                println!("An unexpected error occurred: \"{}\"", e);
+            if let Err(e) = handle_request(stream) {
+                println!("An unexpected error occurred: \"{}\".", e);
+                println!("Unable to handle request.");
             }
         });
     }
