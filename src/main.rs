@@ -7,13 +7,6 @@ use std::thread;
 
 mod line_parser;
 
-/**
- * CURL Request Samples.
- * - curl -X POST http://localhost:8080 -H "Content-Type: application/json" -d '{"foo": "bar", "bar": "foo"}'
- * - curl -X POST http://localhost:8080 -H "Content-Type: multipart/form-data" -F "foo=bar" -F "bar=foo"
- * - curl -X GET http://localhost:8080
- */
-
 fn handle_request(mut stream: TcpStream) -> Result<(), io::Error> {
     let mut request_buffer: [u8; 2048] = [0; 2048];
     stream.read(&mut request_buffer)?;
