@@ -1,3 +1,4 @@
+use std::env;
 use std::io;
 use std::io::Read;
 use std::io::Write;
@@ -52,16 +53,22 @@ fn handle_request(mut stream: TcpStream) -> Result<(), io::Error> {
 }
 
 fn main() {
-    let listener: TcpListener = TcpListener::bind("127.0.0.1:5000").unwrap();
-    println!("Catcher listening on port: 5000.");
+    let args: Vec<String> = env::args().collect();
+    if let Some(port) = args.get(1) {
+        let address: String = format!("127.0.0.1:{}", port);
+        let listener: TcpListener = TcpListener::bind(address).unwrap();
+        println!("Listening on port: {}.", port);
 
-    for stream in listener.incoming() {
-        let stream = stream.unwrap();
-        thread::spawn(move || {
-            if let Err(e) = handle_request(stream) {
-                println!("An unexpected error occurred: \"{}\".", e);
-                println!("Unable to handle request.");
-            }
-        });
+        for stream in listener.incoming() {
+            let stream = stream.unwrap();
+            thread::spawn(move || {
+                if let Err(e) = handle_request(stream) {
+                    println!("An unexpected error occurred: \"{}\".", e);
+                    println!("Unable to handle request.");
+                }
+            });
+        }
     }
+
+    println!("Please, provide a valid port.");
 }
