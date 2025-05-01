@@ -1,17 +1,15 @@
 use std::env;
-
 use std::thread;
 use std::process;
-
 use std::io;
 use std::io::Read;
 use std::io::Write;
-
 use std::net::TcpListener;
 use std::net::TcpStream;
 
 mod line_parser;
 
+// TODO: Request body must be logged as well.
 fn write_log(method: &str, path: &str, headers: &[&str]) -> Result<(), io::Error> {
     let mut file = std::fs::OpenOptions::new()
         .create(true)
