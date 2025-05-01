@@ -1,15 +1,37 @@
 use std::env;
+
+use std::thread;
+use std::process;
+
 use std::io;
 use std::io::Read;
 use std::io::Write;
+
 use std::net::TcpListener;
 use std::net::TcpStream;
-use std::thread;
 
 mod line_parser;
 
+fn write_log(method: &str, path: &str, headers: &[&str]) -> Result<(), io::Error> {
+    let mut file = std::fs::OpenOptions::new()
+        .create(true)
+        .append(true)
+        .open("requests.log.txt")?;
+
+    writeln!(file, "------")?;
+    writeln!(file, "[{}] - {}", method, path)?;
+    writeln!(file, "[")?;
+    for header in headers {
+        writeln!(file, "  {}", header)?;
+    }
+
+    writeln!(file, "]")?;
+    writeln!(file, "------")?;
+    return Ok(());
+}
+
 fn handle_request(mut stream: TcpStream) -> Result<(), io::Error> {
-    let mut request_buffer: [u8; 2048] = [0; 2048];
+    let mut request_buffer: [u8; 4096] = [0; 4096];
     stream.read(&mut request_buffer)?;
 
     let request: String = String::from_utf8_lossy(&request_buffer[..]).to_string();
@@ -37,38 +59,35 @@ fn handle_request(mut stream: TcpStream) -> Result<(), io::Error> {
         }
     }
 
-    println!("Path: {}", request_path);
-    println!("Method: {}", request_method);
-    println!("Headers: {:?}", request_headers);
+    println!("[{}] - {}", request_method, request_path);
 
-    if request_method != "GET" {
-        println!("Body: {}", request_body);
-    }
-
+    let _ = write_log(request_method, request_path, &request_headers);
     let response: &str = "HTTP/1.1 200 OK\r\n\r\n";
     stream.write(response.as_bytes())?;
     stream.flush()?;
 
-    Ok(())
+    return Ok(());
 }
 
 fn main() {
     let args: Vec<String> = env::args().collect();
-    if let Some(port) = args.get(1) {
-        let address: String = format!("127.0.0.1:{}", port);
-        let listener: TcpListener = TcpListener::bind(address).unwrap();
-        println!("Listening on port: {}.", port);
-
-        for stream in listener.incoming() {
-            let stream = stream.unwrap();
-            thread::spawn(move || {
-                if let Err(e) = handle_request(stream) {
-                    println!("An unexpected error occurred: \"{}\".", e);
-                    println!("Unable to handle request.");
-                }
-            });
-        }
+    if args.len() != 2 {
+        eprintln!("Error: \"Invalid arguments!\"");
+        eprintln!("Usage: \"{} <port>\"", args[0]);
+        process::exit(1);
     }
 
-    println!("Please, provide a valid port.");
+    let port: &str = &args[1];
+    let address: String = format!("127.0.0.1:{}", port);
+    let listener: TcpListener = TcpListener::bind(address).unwrap();
+    println!("Request catcher listening on port: {}.", port);
+
+    for stream in listener.incoming() {
+        let stream = stream.unwrap();
+        thread::spawn(move || {
+            if let Err(e) = handle_request(stream) {
+                eprintln!("Error: \"{}\".", e);
+            }
+        });
+    }
 }
