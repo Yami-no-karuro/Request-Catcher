@@ -9,21 +9,25 @@ use std::net::TcpStream;
 
 mod line_parser;
 
-// TODO: Request body must be logged as well.
-fn write_log(method: &str, path: &str, headers: &[&str]) -> Result<(), io::Error> {
+fn write_log(method: &str, path: &str, headers: &[&str], body: &str) -> Result<(), io::Error> {
     let mut file = std::fs::OpenOptions::new()
         .create(true)
         .append(true)
         .open("requests.log.txt")?;
 
     writeln!(file, "------")?;
-    writeln!(file, "[{}] - {}", method, path)?;
-    writeln!(file, "[")?;
+    writeln!(file, "Request: [{}] - {}", method, path)?;
+    writeln!(file, "Headers: \n[")?;
     for header in headers {
         writeln!(file, "  {}", header)?;
     }
 
     writeln!(file, "]")?;
+
+    if "GET" != method {
+        write!(file, "Body: \n{}", &body[..])?;
+    }
+
     writeln!(file, "------")?;
     return Ok(());
 }
@@ -59,7 +63,7 @@ fn handle_request(mut stream: TcpStream) -> Result<(), io::Error> {
 
     println!("[{}] - {}", request_method, request_path);
 
-    let _ = write_log(request_method, request_path, &request_headers);
+    let _ = write_log(request_method, request_path, &request_headers, &request_body);
     let response: &str = "HTTP/1.1 200 OK\r\n\r\n";
     stream.write(response.as_bytes())?;
     stream.flush()?;
