@@ -2,6 +2,7 @@ use std::env;
 use std::thread;
 use std::process;
 use std::io;
+use std::fs::OpenOptions;
 use std::io::Read;
 use std::io::Write;
 use std::net::TcpListener;
@@ -10,7 +11,7 @@ use std::net::TcpStream;
 mod line_parser;
 
 fn write_log(method: &str, path: &str, headers: &[&str], body: &str) -> Result<(), io::Error> {
-    let mut file = std::fs::OpenOptions::new()
+    let mut file = OpenOptions::new()
         .create(true)
         .append(true)
         .open("requests.log.txt")?;
