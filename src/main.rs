@@ -14,7 +14,7 @@ fn write_log(method: &str, path: &str, headers: &[&str], body: &str) -> Result<(
     let mut file = OpenOptions::new()
         .create(true)
         .append(true)
-        .open("requests.log.txt")?;
+        .open("logs/requests.log")?;
 
     writeln!(file, "------")?;
     writeln!(file, "Request: [{}] - {}", method, path)?;
