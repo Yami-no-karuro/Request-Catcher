@@ -4,15 +4,27 @@
 
 ### Introduction
 
-This project implements a simple HTTP server in Rust.  
-Requests details are printed to the console.
+This project implements a simple [HTTP](https://en.wikipedia.org/wiki/HTTP) server in Rust, with the purpose of capturing incoming *HTTP* traffic on a specific port.  
+The information for each request is collected in the following format:
+
+```txt
+Request: [<method>] - <path>
+Headers:
+[
+    Host: <host>
+    Connection: <connection>
+    ...
+]
+Body: 
+<body>
+```
 
 ### Usage & Examples
 
-Once started the server will listen on port 5000.
+To start the server execute `cargo run <port>`.
 
 ```sh
-curl -X GET http://localhost:5000
 curl -X POST http://localhost:5000 -H "Content-Type: application/json" -d '{"foo": "bar", "bar": "foo"}'
 curl -X POST http://localhost:5000 -H "Content-Type: multipart/form-data" -F "foo=bar" -F "bar=foo"
+curl -X GET http://localhost:5000
 ```
