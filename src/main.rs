@@ -24,7 +24,6 @@ fn write_log(method: &str, path: &str, headers: &[&str], body: &str) -> Result<(
     }
 
     writeln!(file, "]")?;
-
     if "GET" != method {
         write!(file, "Body: \n{}", &body[..])?;
     }
