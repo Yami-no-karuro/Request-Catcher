@@ -19,12 +19,3 @@ Body:
 <body>
 ```
 
-### Usage & Examples
-
-To start the server execute `cargo run <port>`.
-
-```sh
-curl -X GET http://localhost:5000
-curl -X POST http://localhost:5000 -H "Content-Type: application/json" -d '{"foo": "bar", "bar": "foo"}'
-curl -X POST http://localhost:5000 -H "Content-Type: multipart/form-data" -F "foo=bar" -F "bar=foo"
-```
