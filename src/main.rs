@@ -2,11 +2,16 @@ use std::env;
 use std::thread;
 use std::process;
 use std::io;
+
 use std::fs::OpenOptions;
-use std::io::Read;
-use std::io::Write;
-use std::net::TcpListener;
-use std::net::TcpStream;
+use std::io::{
+    Read,
+    Write
+};
+use std::net::{
+    TcpListener,
+    TcpStream
+};
 
 mod line_parser;
 
@@ -36,7 +41,9 @@ fn handle_request(mut stream: TcpStream) -> Result<(), io::Error> {
     let mut request_buffer: [u8; 4096] = [0; 4096];
     stream.read(&mut request_buffer)?;
 
-    let request: String = String::from_utf8_lossy(&request_buffer[..]).to_string();
+    let request: String = String::from_utf8_lossy(&request_buffer[..])
+        .to_string();
+
     let request_lines: Vec<&str> = line_parser::get_all(&request);
     let request_line_parts: Vec<&str> = line_parser::get_parts(&request_lines[0]);
 
@@ -81,9 +88,10 @@ fn main() {
 
     let port: &str = &args[1];
     let address: String = format!("127.0.0.1:{}", port);
-    let listener: TcpListener = TcpListener::bind(address).unwrap();
-    println!("Request catcher listening on port: {}.", port);
+    let listener: TcpListener = TcpListener::bind(address)
+        .unwrap();
 
+    println!("Request catcher listening on port: {}.", port);
     for stream in listener.incoming() {
         let stream = stream.unwrap();
         thread::spawn(move || {
